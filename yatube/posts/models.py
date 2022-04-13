@@ -20,8 +20,8 @@ class Post(models.Model):
         Group,
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
-        related_name='groups')
+        on_delete=models.SET_NULL,
+        related_name='group')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
