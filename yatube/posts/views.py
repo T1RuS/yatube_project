@@ -28,7 +28,7 @@ def group_posts(request, slug):
 def user_posts(request, slug):
     template = 'posts/group_list.html'
     user = get_object_or_404(User, username=slug)
-    posts = Post.objects.filter(author=user).all()[:OUTPUT_COUNT]
+    posts = user.posts.all()[:OUTPUT_COUNT]
     context = {
         'posts': posts
     }
