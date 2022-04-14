@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 
-from .models import Post, Group
+from .models import Post, Group, User
 
 OUTPUT_COUNT = 10
 
 
 def index(request):
     template = 'posts/index.html'
-    posts = Post.objects.order_by('-pub_date')[:OUTPUT_COUNT]
+    posts = Post.objects.all()[:OUTPUT_COUNT]
     context = {
         'posts': posts
     }
@@ -16,10 +16,20 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    posts = group.group.all().order_by('-pub_date')[:OUTPUT_COUNT]
+    posts = group.posts.all()[:OUTPUT_COUNT]
     template = 'posts/group_list.html'
     context = {
         'group': group,
+        'posts': posts
+    }
+    return render(request, template, context)
+
+
+def user_posts(request, slug):
+    template = 'posts/group_list.html'
+    user = get_object_or_404(User, username=slug)
+    posts = Post.objects.filter(author=user).all()[:OUTPUT_COUNT]
+    context = {
         'posts': posts
     }
     return render(request, template, context)
