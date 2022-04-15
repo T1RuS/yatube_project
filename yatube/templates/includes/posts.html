@@ -2,7 +2,7 @@
   <article class="">
     <ul class="card-header list-unstyled">
       <li>
-        Автор: {{ post.author.get_full_name }}
+        Автор: <a class="btn-link" href="{% url 'posts:user_posts' post.author %}">{{ post.author.get_full_name }}</a>
       </li>
       <li>
         Дата публикации: {{ post.pub_date|date:"d E Y" }}
@@ -14,8 +14,6 @@
         <a class="btn btn-secondary" href="{% url 'posts:group_list' post.group.slug %}">
           Все записи группы: {{post.group.title}}</a>
       {% endif %}
-      <a class="btn btn-secondary" href="{% url 'posts:user_posts' post.author %}">
-          Все записи пользователя: {{post.author.get_full_name}}</a>
     </div>
   </article>
 </div>

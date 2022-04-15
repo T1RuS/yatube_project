@@ -4,7 +4,7 @@
 
 {% block content %}
   <div class="container py-5">
-    <h1> {{ group.description }} </h1>
+    <h1>Записи сообщества {{ group.description }} </h1>
     {% for post in posts %}
       {% include 'includes/posts.html' %}
     {% endfor %}
