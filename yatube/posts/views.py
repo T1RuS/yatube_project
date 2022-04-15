@@ -8,7 +8,6 @@ OUTPUT_COUNT = 10
 def index(request):
     template = 'posts/index.html'
     posts = Post.objects.all()[:OUTPUT_COUNT]
-    print(type(posts))
     context = {
         'posts': posts
     }
