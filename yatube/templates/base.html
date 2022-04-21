@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <title>{% block title %} {% endblock %} </title>
   </head>
-  <body class="bg-light">
+  <body class="bg-light d-flex flex-column min-vh-100">
     {% include 'includes/header.html' %}
     <main>
       {% block content %} {% endblock %}
