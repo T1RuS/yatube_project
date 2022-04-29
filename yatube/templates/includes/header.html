@@ -17,6 +17,15 @@
               Главная
             </a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Об авторе</a>
+            <div class="dropdown-menu bg-light">
+              <a class="dropdown-item" href="{% url 'about:author' %}">Профиль автора</a>
+              <a class="dropdown-item" href="{% url 'about:tech' %}">Технологии</a>
+              <a class="dropdown-item" href="https://github.com/T1RuS">Git Автора</a>
+              <a class="dropdown-item" href="https://vk.com/t1rusx">VK Автора</a>
+            </div>
+          </li>
         </ul>
 
         <div class="d-flex">
