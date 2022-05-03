@@ -29,18 +29,31 @@
         </ul>
 
         <div class="d-flex">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:login' %}">
-                Войти
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:signup' %}">
-                Зарегистрироваться
-              </a>
-            </li>
-          </ul>
+          {% if user.is_authenticated %}
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"> {{ user.username }} </a>
+                <div class="dropdown-menu bg-light">
+                  <a class="dropdown-item" href="{% url 'about:author' %}">Новая запись</a>
+                  <a class="dropdown-item" href="{% url 'users:password_change' %}">Изменить пароль</a>
+                  <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a>
+                </div>
+              </li>
+            </ul>
+          {% else %}
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:login' %}">
+                  Войти
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:signup' %}">
+                  Зарегистрироваться
+                </a>
+              </li>
+            </ul>
+          {% endif %}
         </div>
       </div>
     </div>
