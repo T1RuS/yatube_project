@@ -1,5 +1,6 @@
 {% load static %}
 <header>
+{% with request.resolver_match.view_name as view_name %}
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="container">
       <a class="navbar-brand" href="{% url 'posts:index' %}">
@@ -13,15 +14,15 @@
       <div class="collapse navbar-collapse" id="navbarColor01">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'posts:index' %}">
+            <a class="nav-link {% if view_name  == 'posts:index' %}active{% endif %}" href="{% url 'posts:index' %}">
               Главная
             </a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Об авторе</a>
             <div class="dropdown-menu bg-light">
-              <a class="dropdown-item" href="{% url 'about:author' %}">Профиль автора</a>
-              <a class="dropdown-item" href="{% url 'about:tech' %}">Технологии</a>
+              <a class="dropdown-item {% if view_name  == 'about:author' %}active{% endif %}" href="{% url 'about:author' %}">Профиль автора</a>
+              <a class="dropdown-item {% if view_name  == 'about:tech' %}active{% endif %}" href="{% url 'about:tech' %}">Технологии</a>
               <a class="dropdown-item" href="https://github.com/T1RuS">Git Автора</a>
               <a class="dropdown-item" href="https://vk.com/t1rusx">VK Автора</a>
             </div>
@@ -34,9 +35,9 @@
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"> {{ user.username }} </a>
                 <div class="dropdown-menu bg-light">
-                  <a class="dropdown-item" href="{% url 'about:author' %}">Новая запись</a>
-                  <a class="dropdown-item" href="{% url 'users:password_change' %}">Изменить пароль</a>
-                  <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a>
+                  <a class="dropdown-item {% if view_name  == 'about:author' %}active{% endif %}" href="{% url 'about:author' %}">Новая запись</a>
+                  <a class="dropdown-item {% if view_name  == 'users:password_change' %}active{% endif %}" href="{% url 'users:password_change' %}">Изменить пароль</a>
+                  <a class="dropdown-item {% if view_name  == 'users:logout' %}active{% endif %}" href="{% url 'users:logout' %}">Выйти</a>
                 </div>
               </li>
             </ul>
@@ -58,4 +59,5 @@
       </div>
     </div>
   </nav>
+{% endwith %}
 </header>
