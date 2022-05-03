@@ -57,11 +57,12 @@ def profile(request, username):
         page_number = 1
 
     page_obj = paginator.get_page(page_number)
-    count_page = len(post_list)
+    count_posts = len(user.posts.all())
+
     context = {
         'page_obj': page_obj,
         'username': user.get_full_name(),
-        'count_page': count_page,
+        'count_posts': count_posts,
     }
     return render(request, template, context)
 
@@ -70,8 +71,12 @@ def post_detail(request, post_id):
 
     post = Post.objects.get(id=post_id)
     name_post = post.text[0:31]
+    user = get_object_or_404(User, username=post.author)
+    count_posts = len(user.posts.all())
+
     context = {
         'post': post,
         'name_post': name_post,
+        'count_posts': count_posts,
     }
     return render(request, 'posts/post_detail.html', context)

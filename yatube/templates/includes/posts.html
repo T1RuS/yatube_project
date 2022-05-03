@@ -10,9 +10,7 @@
     </ul>
     <div class="card-body">
       <p>{{ post.text }}</p>
-      {% if page_obj %}
-        <a class="btn btn-secondary" href="{% url "posts:post_detail" post.id %}">Подробная информация </a>
-      {% endif %}
+      <a class="btn btn-secondary" href="{% url "posts:post_detail" post.id %}">Подробная информация </a>
       {% if post.group %}
         <a class="btn btn-secondary" href="{% url 'posts:group_list' post.group.slug %}">
           Все записи группы: {{post.group.title}}</a>
