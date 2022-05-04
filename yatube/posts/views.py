@@ -106,3 +106,34 @@ def post_create(request):
     template = 'posts/create_post.html'
     form = CreationPostForm()
     return render(request, template, {'form': form})
+
+
+@login_required
+def post_edit(request, post_id):
+    post = Post.objects.get(id=post_id)
+    author = get_object_or_404(User, username=post.author)
+    user = get_object_or_404(User, username=request.user.username)
+
+    if author.username == user.username:
+        if request.method == 'POST':
+            form = CreationPostForm(request.POST)
+            if form.is_valid():
+                post.text = form.cleaned_data['text']
+                post.pub_date = date.today()
+                post.group = form.cleaned_data['group']
+                post.save()
+
+                return redirect(f'/profile/{user}/')
+            else:
+                template = 'posts/create_post.html'
+                return render(request, template, {'form': form,
+                                                  'is_edit': True})
+        else:
+            template = 'posts/create_post.html'
+
+            form = CreationPostForm(initial={'text': post.text,
+                                             'group': post.group})
+            return render(request, template, {'form': form,
+                                              'is_edit': True})
+
+    return redirect(f'/posts/{post_id}/')
