@@ -101,11 +101,15 @@ def post_create(request):
             return redirect(f'/profile/{user}/')
         else:
             template = 'posts/create_post.html'
-            return render(request, template, {'form': form})
+            context = {'form': form,
+                       'title': 'Создание поста'}
+            return render(request, template, context)
 
     template = 'posts/create_post.html'
     form = CreationPostForm()
-    return render(request, template, {'form': form})
+    context = {'form': form,
+               'title': 'Создание поста'}
+    return render(request, template, context)
 
 
 @login_required
@@ -126,14 +130,17 @@ def post_edit(request, post_id):
                 return redirect(f'/profile/{user}/')
             else:
                 template = 'posts/create_post.html'
-                return render(request, template, {'form': form,
-                                                  'is_edit': True})
+                context = {'form': form,
+                           'title': 'Изменение поста',
+                           'is_edit': True}
+                return render(request, template, context)
         else:
             template = 'posts/create_post.html'
-
             form = CreationPostForm(initial={'text': post.text,
                                              'group': post.group})
-            return render(request, template, {'form': form,
-                                              'is_edit': True})
+            context = {'form': form,
+                       'title': 'Изменение поста',
+                       'is_edit': True}
+            return render(request, template, context)
 
     return redirect(f'/posts/{post_id}/')
