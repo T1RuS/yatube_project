@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block title %} Записи сообщества {{ group }} {% endblock %}
-
 {% block content %}
   <div class="container py-5">
-    <h2>Записи сообщества {{ group.description }} </h2>
+    <h1>{{ group.title }}</h1>
+    <p> {{ group.description }}</p>
     {% for post in page_obj %}
       {% include 'includes/posts.html' %}
     {% endfor %}

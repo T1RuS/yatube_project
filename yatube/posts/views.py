@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .forms import CreationPostForm
+from .forms import PostForm
 from datetime import date
 
 from .models import Post, Group, User
@@ -50,8 +50,8 @@ def group_posts(request, slug):
 
 def profile(request, username):
     template = 'posts/profile.html'
-    user = get_object_or_404(User, username=username)
-    post_list = user.posts.all()[:OUTPUT_COUNT]
+    author = get_object_or_404(User, username=username)
+    post_list = author.posts.all()[:OUTPUT_COUNT]
     paginator = Paginator(post_list, OUTPUT_COUNT)
 
     if request.GET.get('page'):
@@ -60,11 +60,10 @@ def profile(request, username):
         page_number = 1
 
     page_obj = paginator.get_page(page_number)
-    count_posts = len(user.posts.all())
-
+    count_posts = len(author.posts.all())
     context = {
+        'author': author,
         'page_obj': page_obj,
-        'username': user.get_full_name(),
         'count_posts': count_posts,
     }
     return render(request, template, context)
@@ -90,15 +89,14 @@ def post_detail(request, post_id):
 def post_create(request):
     if request.method == 'POST':
         user = get_object_or_404(User, username=request.user.username)
-        form = CreationPostForm(request.POST)
+        form = PostForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data['text']
             pub_date = date.today()
             group = form.cleaned_data['group']
             author = user
             Post.objects.create(author=author, text=text, group=group, pub_date=pub_date)
-
-            return redirect(f'/profile/{user}/')
+            return redirect(f'/profile/{author}/')
         else:
             template = 'posts/create_post.html'
             context = {'form': form,
@@ -106,7 +104,7 @@ def post_create(request):
             return render(request, template, context)
 
     template = 'posts/create_post.html'
-    form = CreationPostForm()
+    form = PostForm()
     context = {'form': form,
                'title': 'Создание поста'}
     return render(request, template, context)
@@ -120,14 +118,14 @@ def post_edit(request, post_id):
 
     if author.username == user.username:
         if request.method == 'POST':
-            form = CreationPostForm(request.POST)
+            form = PostForm(request.POST)
             if form.is_valid():
                 post.text = form.cleaned_data['text']
                 post.pub_date = date.today()
                 post.group = form.cleaned_data['group']
                 post.save()
 
-                return redirect(f'/profile/{user}/')
+                return redirect(f'/posts/{post_id}/')
             else:
                 template = 'posts/create_post.html'
                 context = {'form': form,
@@ -136,8 +134,8 @@ def post_edit(request, post_id):
                 return render(request, template, context)
         else:
             template = 'posts/create_post.html'
-            form = CreationPostForm(initial={'text': post.text,
-                                             'group': post.group})
+            form = PostForm(initial={'text': post.text,
+                                     'group': post.group})
             context = {'form': form,
                        'title': 'Изменение поста',
                        'is_edit': True}
