@@ -1,5 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from .forms import CreationPostForm
+from datetime import date
 
 from .models import Post, Group, User
 
@@ -68,6 +71,7 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
+    template = 'posts/post_detail.html'
 
     post = Post.objects.get(id=post_id)
     name_post = post.text[0:31]
@@ -79,4 +83,26 @@ def post_detail(request, post_id):
         'name_post': name_post,
         'count_posts': count_posts,
     }
-    return render(request, 'posts/post_detail.html', context)
+    return render(request, template, context)
+
+
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        user = get_object_or_404(User, username=request.user.username)
+        form = CreationPostForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            pub_date = date.today()
+            group = form.cleaned_data['group']
+            author = user
+            Post.objects.create(author=author, text=text, group=group, pub_date=pub_date)
+
+            return redirect(f'/profile/{user}/')
+        else:
+            template = 'posts/create_post.html'
+            return render(request, template, {'form': form})
+
+    template = 'posts/create_post.html'
+    form = CreationPostForm()
+    return render(request, template, {'form': form})
