@@ -95,7 +95,8 @@ def post_create(request):
             pub_date = date.today()
             group = form.cleaned_data['group']
             author = user
-            Post.objects.create(author=author, text=text, group=group, pub_date=pub_date)
+            Post.objects.create(author=author, text=text,
+                                group=group, pub_date=pub_date)
             return redirect(f'/profile/{author}/')
         else:
             template = 'posts/create_post.html'
