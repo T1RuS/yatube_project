@@ -1,9 +1,9 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, reverse
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .forms import PostForm
 from datetime import date
 
+from .forms import PostForm
 from .models import Post, Group, User
 
 OUTPUT_COUNT = 10
@@ -51,7 +51,8 @@ def group_posts(request, slug):
 def profile(request, username):
     template = 'posts/profile.html'
     author = get_object_or_404(User, username=username)
-    post_list = author.posts.all()[:OUTPUT_COUNT]
+
+    post_list = author.posts.all()
     paginator = Paginator(post_list, OUTPUT_COUNT)
 
     if request.GET.get('page'):
@@ -73,7 +74,7 @@ def post_detail(request, post_id):
     template = 'posts/post_detail.html'
 
     post = Post.objects.get(id=post_id)
-    name_post = post.text[0:31]
+    name_post = post.text[:30]
     user = get_object_or_404(User, username=post.author)
     count_posts = len(user.posts.all())
 
@@ -97,12 +98,12 @@ def post_create(request):
             author = user
             Post.objects.create(author=author, text=text,
                                 group=group, pub_date=pub_date)
-            return redirect(f'/profile/{author}/')
-        else:
-            template = 'posts/create_post.html'
-            context = {'form': form,
-                       'title': 'Создание поста'}
-            return render(request, template, context)
+            return reverse(f'/profile/{author}/')
+
+        template = 'posts/create_post.html'
+        context = {'form': form,
+                   'title': 'Создание поста'}
+        return render(request, template, context)
 
     template = 'posts/create_post.html'
     form = PostForm()
@@ -126,20 +127,20 @@ def post_edit(request, post_id):
                 post.group = form.cleaned_data['group']
                 post.save()
 
-                return redirect(f'/posts/{post_id}/')
-            else:
-                template = 'posts/create_post.html'
-                context = {'form': form,
-                           'title': 'Изменение поста',
-                           'is_edit': True}
-                return render(request, template, context)
-        else:
+                return reverse(f'/posts/{post_id}/')
+
             template = 'posts/create_post.html'
-            form = PostForm(initial={'text': post.text,
-                                     'group': post.group})
             context = {'form': form,
                        'title': 'Изменение поста',
                        'is_edit': True}
             return render(request, template, context)
 
-    return redirect(f'/posts/{post_id}/')
+        template = 'posts/create_post.html'
+        form = PostForm(initial={'text': post.text,
+                                 'group': post.group})
+        context = {'form': form,
+                   'title': 'Изменение поста',
+                   'is_edit': True}
+        return render(request, template, context)
+
+    return reverse(f'/posts/{post_id}/')
