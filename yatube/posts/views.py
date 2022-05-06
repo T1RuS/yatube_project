@@ -86,15 +86,13 @@ def post_create(request):
                'title': 'Создание поста'}
 
     if request.method == 'POST':
-        user = get_object_or_404(User, username=request.user.username)
+        author = get_object_or_404(User, username=request.user.username)
         form = PostForm(request.POST)
 
         if form.is_valid():
-            text = form.cleaned_data['text']
-            group = form.cleaned_data['group']
-            author = user
-            Post.objects.create(author=author, text=text,
-                                group=group)
+            obj = form.save(commit=False)
+            obj.author = author
+            obj.save()
             return HttpResponseRedirect(reverse('posts:profile', args=(author,)))
 
         context['form'] = form
