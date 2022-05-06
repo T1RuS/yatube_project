@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, reverse
+from django.forms import modelformset_factory
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from datetime import date
+from django.http import HttpResponseRedirect
 
 from .forms import PostForm
 from .models import Post, Group, User
+
 
 OUTPUT_COUNT = 10
 
@@ -13,14 +15,11 @@ def index(request):
     template = 'posts/index.html'
 
     post_list = Post.objects.all()
+
     paginator = Paginator(post_list, OUTPUT_COUNT)
-
-    if request.GET.get('page'):
-        page_number = request.GET.get('page')
-    else:
-        page_number = 1
-
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     context = {
         'page_obj': page_obj,
     }
@@ -32,13 +31,9 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
 
     post_list = Post.objects.all()
+
     paginator = Paginator(post_list, OUTPUT_COUNT)
-
-    if request.GET.get('page'):
-        page_number = request.GET.get('page')
-    else:
-        page_number = 1
-
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
@@ -53,14 +48,11 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
 
     post_list = author.posts.all()
+
     paginator = Paginator(post_list, OUTPUT_COUNT)
-
-    if request.GET.get('page'):
-        page_number = request.GET.get('page')
-    else:
-        page_number = 1
-
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     count_posts = len(author.posts.all())
     context = {
         'author': author,
@@ -88,27 +80,26 @@ def post_detail(request, post_id):
 
 @login_required
 def post_create(request):
+    form = PostForm()
+    template = 'posts/create_post.html'
+    context = {'form': form,
+               'title': 'Создание поста'}
+
     if request.method == 'POST':
         user = get_object_or_404(User, username=request.user.username)
         form = PostForm(request.POST)
+
         if form.is_valid():
             text = form.cleaned_data['text']
-            pub_date = date.today()
             group = form.cleaned_data['group']
             author = user
             Post.objects.create(author=author, text=text,
-                                group=group, pub_date=pub_date)
-            return reverse(f'/profile/{author}/')
+                                group=group)
+            return HttpResponseRedirect(reverse('posts:profile', args=(author,)))
 
-        template = 'posts/create_post.html'
-        context = {'form': form,
-                   'title': 'Создание поста'}
+        context['form'] = form
         return render(request, template, context)
 
-    template = 'posts/create_post.html'
-    form = PostForm()
-    context = {'form': form,
-               'title': 'Создание поста'}
     return render(request, template, context)
 
 
@@ -119,28 +110,23 @@ def post_edit(request, post_id):
     user = get_object_or_404(User, username=request.user.username)
 
     if author.username == user.username:
-        if request.method == 'POST':
-            form = PostForm(request.POST)
-            if form.is_valid():
-                post.text = form.cleaned_data['text']
-                post.pub_date = date.today()
-                post.group = form.cleaned_data['group']
-                post.save()
-
-                return reverse(f'/posts/{post_id}/')
-
-            template = 'posts/create_post.html'
-            context = {'form': form,
-                       'title': 'Изменение поста',
-                       'is_edit': True}
-            return render(request, template, context)
-
         template = 'posts/create_post.html'
-        form = PostForm(initial={'text': post.text,
-                                 'group': post.group})
+        form = PostForm(request.POST)
         context = {'form': form,
                    'title': 'Изменение поста',
                    'is_edit': True}
+
+        if request.method == 'POST' and form.is_valid():
+            post.text = form.cleaned_data['text']
+            post.group = form.cleaned_data['group']
+            post.save()
+            return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        elif request.method != 'POST':
+            form = PostForm(initial={'text': post.text,
+                                     'group': post.group})
+            context['form'] = form
+            return render(request, template, context)
+
         return render(request, template, context)
 
-    return reverse(f'/posts/{post_id}/')
+    return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
