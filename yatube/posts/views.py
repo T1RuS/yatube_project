@@ -111,15 +111,15 @@ def post_edit(request, post_id):
 
     if author.username == user.username:
         template = 'posts/create_post.html'
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, instance=post)
         context = {'form': form,
                    'title': 'Изменение поста',
                    'is_edit': True}
 
         if request.method == 'POST' and form.is_valid():
-            post.text = form.cleaned_data['text']
-            post.group = form.cleaned_data['group']
-            post.save()
+            obj = form.save(commit=False)
+            obj.author = user
+            obj.save()
             return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
         elif request.method != 'POST':
             form = PostForm(initial={'text': post.text,
