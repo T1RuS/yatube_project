@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404, reverse
-from django.forms import modelformset_factory
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -30,7 +29,7 @@ def group_posts(request, slug):
     template = 'posts/group_list.html'
     group = get_object_or_404(Group, slug=slug)
 
-    post_list = Post.objects.all()
+    post_list = group.posts.all()
 
     paginator = Paginator(post_list, OUTPUT_COUNT)
     page_number = request.GET.get('page')
@@ -114,7 +113,7 @@ def post_edit(request, post_id):
                    'title': 'Изменение поста',
                    'is_edit': True}
 
-        if request.method == 'POST' and form.is_valid():
+        if form.is_valid():
             obj = form.save(commit=False)
             obj.author = user
             obj.save()
