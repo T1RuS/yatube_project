@@ -92,7 +92,8 @@ def post_create(request):
             obj = form.save(commit=False)
             obj.author = author
             obj.save()
-            return HttpResponseRedirect(reverse('posts:profile', args=(author,)))
+            return HttpResponseRedirect(reverse('posts:profile',
+                                                args=(author,)))
 
         context['form'] = form
         return render(request, template, context)
@@ -117,7 +118,8 @@ def post_edit(request, post_id):
             obj = form.save(commit=False)
             obj.author = user
             obj.save()
-            return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+            return HttpResponseRedirect(reverse('posts:post_detail',
+                                                args=(post_id,)))
         elif request.method != 'POST':
             form = PostForm(initial={'text': post.text,
                                      'group': post.group})
