@@ -79,25 +79,21 @@ def post_detail(request, post_id):
 
 @login_required
 def post_create(request):
-    form = PostForm()
+    form = PostForm(request.POST or None)
     template = 'posts/create_post.html'
     context = {'form': form,
                'title': 'Создание поста'}
 
-    if request.method == 'POST':
-        author = get_object_or_404(User, username=request.user.username)
-        form = PostForm(request.POST)
+    author = request.user
 
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.author = author
-            obj.save()
-            return HttpResponseRedirect(reverse('posts:profile',
-                                                args=(author,)))
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.author = author
+        obj.save()
+        return HttpResponseRedirect(reverse('posts:profile',
+                                            args=(author,)))
 
-        context['form'] = form
-        return render(request, template, context)
-
+    context['form'] = form
     return render(request, template, context)
 
 
@@ -105,27 +101,22 @@ def post_create(request):
 def post_edit(request, post_id):
     post = Post.objects.get(id=post_id)
     author = get_object_or_404(User, username=post.author)
-    user = get_object_or_404(User, username=request.user.username)
+    user = request.user
 
-    if author.username == user.username:
-        template = 'posts/create_post.html'
-        form = PostForm(request.POST, instance=post)
-        context = {'form': form,
-                   'title': 'Изменение поста',
-                   'is_edit': True}
+    if author != user:
+        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
 
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.author = user
-            obj.save()
-            return HttpResponseRedirect(reverse('posts:post_detail',
-                                                args=(post_id,)))
-        elif request.method != 'POST':
-            form = PostForm(initial={'text': post.text,
-                                     'group': post.group})
-            context['form'] = form
-            return render(request, template, context)
+    template = 'posts/create_post.html'
+    form = PostForm(request.POST or None, instance=post)
+    context = {'form': form,
+               'title': 'Изменение поста',
+               'is_edit': True}
 
-        return render(request, template, context)
-
-    return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.author = user
+        obj.save()
+        return HttpResponseRedirect(reverse('posts:post_detail',
+                                            args=(post_id,)))
+    context['form'] = form
+    return render(request, template, context)
