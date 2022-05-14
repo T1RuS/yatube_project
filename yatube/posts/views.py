@@ -104,7 +104,8 @@ def post_edit(request, post_id):
     user = request.user
 
     if author != user:
-        return HttpResponseRedirect(reverse('posts:post_detail', args=(post_id,)))
+        return HttpResponseRedirect(reverse('posts:post_detail',
+                                            args=(post_id,)))
 
     template = 'posts/create_post.html'
     form = PostForm(request.POST or None, instance=post)
