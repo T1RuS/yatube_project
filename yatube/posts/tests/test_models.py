@@ -28,3 +28,4 @@ class PostModelTest(TestCase):
         group = PostModelTest.group
         self.assertEqual(group.title, 'Тестовая группа')
         self.assertEqual(post.text, 'Тестовая пост')
+
