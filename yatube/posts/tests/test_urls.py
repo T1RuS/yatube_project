@@ -50,19 +50,33 @@ class StaticURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
         response = self.authorized_client_user.get('/create/')
-        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'posts/create_post.html')
 
         response = self.authorized_client_author.get('/posts/1/edit/')
         self.assertTemplateUsed(response, 'posts/create_post.html')
 
+    def test_urls_uses_correct_redirect(self):
         response = self.authorized_client_user.get('/posts/1/edit/')
         self.assertRedirects(response, '/posts/1/')
 
-    def test_urls_uses_correct_redirect(self):
         response = self.guest_client.get('/create/', follow=True)
         self.assertRedirects(response, '/auth/login/?next=/create/')
 
     def test_urls_uses_correct_status(self):
+        list_urls = ['/posts/1/', '/profile/author/', '/group/test_group/', '/']
+        for url in list_urls:
+            response = self.guest_client.get(url)
+            self.assertEqual(response.status_code, 200)
+
+        response = self.guest_client.get('/create/')
+        self.assertEqual(response.status_code, 302)
+
+        response = self.authorized_client_user.get('/posts/1/edit/')
+        self.assertEqual(response.status_code, 302)
+
+        response = self.authorized_client_author.get('/posts/1/edit/')
+        self.assertEqual(response.status_code, 200)
 
         response = self.guest_client.get('/unexisting_page/')
         self.assertEqual(response.status_code, 404)
+
